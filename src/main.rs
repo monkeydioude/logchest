@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate rocket;
 
+pub mod file_op;
+
 use std::net::Ipv4Addr;
 
 use rocket::{serde::json::Json, Config, Route, Build, Rocket};
@@ -26,13 +28,19 @@ fn display_logs() -> Json<Vec<Log>> {
 
 #[post("/log", format = "json", data = "<log>")]
 fn add_log(log: Json<Log>) -> String {
+    let mut fm8kr = file_op::create_file("/logs/logs");
+    fm8kr.with_directories();
+    
+    println!("{:?}", &fm8kr);
+    // fm8kr.with_directories();
+
     format!(
         "log added id:{}, level:{}, msg: {}",
         log.id, log.level, log.msg
     )
 }
 
-fn launch(routes: Vec<Route>, port: u16) -> Rocket<Build> {
+fn lezgong(routes: Vec<Route>, port: u16) -> Rocket<Build> {
     rocket::build()
         .configure(Config {
             port,
@@ -46,6 +54,6 @@ fn launch(routes: Vec<Route>, port: u16) -> Rocket<Build> {
 }
 
 #[launch]
-fn lezgong() -> _ {
-    launch(routes![display_logs, add_log], 8080)
+fn launch() -> _ {
+    lezgong(routes![display_logs, add_log], 8080)
 }
