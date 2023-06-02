@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate rocket;
 
+use std::net::Ipv4Addr;
+
 use rocket::{serde::json::Json, Config, Route, Build, Rocket};
 use serde::{Deserialize, Serialize};
 
@@ -34,6 +36,10 @@ fn launch(routes: Vec<Route>, port: u16) -> Rocket<Build> {
     rocket::build()
         .configure(Config {
             port,
+            address: match "0.0.0.0".parse::<Ipv4Addr>() {
+                Ok(addr) => std::net::IpAddr::V4(addr),
+                Err(_) => std::net::IpAddr::V4(Ipv4Addr::new(0, 0, 0, 0)),
+            },
             ..Config::default()
         })
         .mount("/", routes)
