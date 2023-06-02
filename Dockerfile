@@ -3,7 +3,7 @@ FROM rust:latest
 WORKDIR /usr/src/logchest
 COPY . .
 
-EXPOSE 8000
+EXPOSE 8080
 
 RUN cargo install --path .
 CMD ["logchest"]
