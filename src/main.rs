@@ -3,41 +3,49 @@ extern crate rocket;
 
 pub mod file_op;
 
-use std::net::Ipv4Addr;
-
-use rocket::{serde::json::Json, Config, Route, Build, Rocket};
+use std::{net::Ipv4Addr};
+use file_op::read_lines;
+use rocket::{serde::json::Json, Build, Config, Rocket, Route};
 use serde::{Deserialize, Serialize};
+
+const LOG_FILE_PATH: &str = "./logs/logs";
 
 #[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
 struct Log {
     #[serde(default)]
     id: i64,
-    level: i32,
     msg: String,
 }
 
+
 #[get("/logs")]
-fn display_logs() -> Json<Vec<Log>> {
-    // LogData("[\"salut les kids\"]")
-    Json(vec![Log {
-        id: 0,
-        level: 0,
-        msg: "Ya rukzak".to_string(),
-    }])
+// fn display_logs() -> Json<Vec<Log>> {
+    fn display_logs() -> Json<Vec<String>> {
+        // Json(read_lines(LOG_FILE_PATH, |line| {
+    //     Log {
+    //         id: (line.0 as i64) + 1,
+    //         msg: line.1.to_string(),
+    //     }
+    // }))
+    Json(read_lines(LOG_FILE_PATH, |line| line.1.to_string()))
 }
 
 #[post("/log", format = "json", data = "<log>")]
 fn add_log(log: Json<Log>) -> String {
-    let mut fm8kr = file_op::create_file("/logs/logs");
-    fm8kr.with_directories();
-    
-    println!("{:?}", &fm8kr);
-    // fm8kr.with_directories();
+    let mut fm8kr = file_op::create_file(LOG_FILE_PATH);
+    if let Err(res) = fm8kr.with_directories().go_my_dude() {
+        panic!("{}", res);
+    }
 
-    format!(
-        "log added id:{}, level:{}, msg: {}",
-        log.id, log.level, log.msg
-    )
+    match fm8kr.write_line(&log.msg) {
+        Ok(_) => format!(
+            "log added id:{}, msg: {}",
+            log.id, log.msg
+        ),
+        Err(err) => err.to_string(),
+    }
+    // println!("{:?}", &fm8kr);
+    // fm8kr.with_directories();    
 }
 
 fn lezgong(routes: Vec<Route>, port: u16) -> Rocket<Build> {
