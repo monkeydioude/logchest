@@ -44,11 +44,18 @@ pub fn create_file(path: &str) -> FileM8kr {
     }
 }
 
-pub fn read_lines<T>(path: &str, transformer: fn((usize, &str)) -> T) -> Vec<T> {
-    read_to_string(path)
-        .unwrap()
-        .lines()
-        .enumerate()
-        .map(transformer)
-        .collect()
+pub fn read_lines<T>(path: &str, transformer: fn((usize, &str)) -> T) -> Result<Vec<T>, Error> {
+    let res = read_to_string(path);
+
+    if let Err(err) = res {
+        return Err(err);
+    }
+    
+    Ok(
+        res.unwrap()
+            .lines()
+            .enumerate()
+            .map(transformer)
+            .collect()
+    )
 }

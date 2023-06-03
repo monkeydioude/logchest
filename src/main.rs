@@ -20,14 +20,14 @@ struct Log {
 
 #[get("/logs")]
 // fn display_logs() -> Json<Vec<Log>> {
-    fn display_logs() -> Json<Vec<String>> {
-        // Json(read_lines(LOG_FILE_PATH, |line| {
-    //     Log {
-    //         id: (line.0 as i64) + 1,
-    //         msg: line.1.to_string(),
-    //     }
-    // }))
-    Json(read_lines(LOG_FILE_PATH, |line| line.1.to_string()))
+fn display_logs() -> Json<Vec<String>> {
+    Json(
+        match read_lines(LOG_FILE_PATH, |line| line.1.to_string()) {
+            Ok(res) => res,
+            Err(_) => vec!(),
+        }
+    )
+    
 }
 
 #[post("/log", format = "json", data = "<log>")]
