@@ -11,7 +11,7 @@ use rocket::{serde::json::{Json, to_string}, Build, Config, Rocket, Route};
 
 const LOG_FILE_PATH: &str = "./logs/logs";
 
-#[get("/logs")]
+#[get("/logchest/logs")]
 fn display_logs() -> Json<Vec<String>> {
     Json(
         match read_lines(LOG_FILE_PATH, |line| line.1.to_string()) {
@@ -22,7 +22,7 @@ fn display_logs() -> Json<Vec<String>> {
     
 }
 
-#[post("/log", format = "json", data = "<log>")]
+#[post("/logchest/log", format = "json", data = "<log>")]
 fn add_log(mut log: Json<Log>) -> String {
     let mut fm8kr = file_op::create_file(LOG_FILE_PATH);
     if let Err(res) = fm8kr.with_directories().go_my_dude() {
