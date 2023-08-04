@@ -2,24 +2,16 @@
 extern crate rocket;
 
 pub mod file_op;
+pub mod log_op;
 
-use std::{net::Ipv4Addr};
+use std::{net::Ipv4Addr, time::{UNIX_EPOCH, SystemTime}};
 use file_op::read_lines;
-use rocket::{serde::json::Json, Build, Config, Rocket, Route};
-use serde::{Deserialize, Serialize};
+use log_op::Log;
+use rocket::{serde::json::{Json, to_string}, Build, Config, Rocket, Route};
 
 const LOG_FILE_PATH: &str = "./logs/logs";
 
-#[derive(Debug, PartialEq, Eq, Deserialize, Serialize)]
-struct Log {
-    #[serde(default)]
-    id: i64,
-    msg: String,
-}
-
-
 #[get("/logs")]
-// fn display_logs() -> Json<Vec<Log>> {
 fn display_logs() -> Json<Vec<String>> {
     Json(
         match read_lines(LOG_FILE_PATH, |line| line.1.to_string()) {
@@ -31,21 +23,29 @@ fn display_logs() -> Json<Vec<String>> {
 }
 
 #[post("/log", format = "json", data = "<log>")]
-fn add_log(log: Json<Log>) -> String {
+fn add_log(mut log: Json<Log>) -> String {
     let mut fm8kr = file_op::create_file(LOG_FILE_PATH);
     if let Err(res) = fm8kr.with_directories().go_my_dude() {
         panic!("{}", res);
     }
+    log.date = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .unwrap()
+        .as_millis();
 
-    match fm8kr.write_line(&log.msg) {
-        Ok(_) => format!(
-            "log added id:{}, msg: {}",
-            log.id, log.msg
-        ),
-        Err(err) => err.to_string(),
+    match to_string(&*log) {
+            Ok(msg) => {
+                if let Err(err) = fm8kr.write_line(&msg) {
+                    return err.to_string()
+                }
+                format!(
+                    "log added msg: {}, date: {}",
+                    log.msg, log.date
+                )
+            },
+            Err(err) => err.to_string()
     }
-    // println!("{:?}", &fm8kr);
-    // fm8kr.with_directories();    
+
 }
 
 fn lezgong(routes: Vec<Route>, port: u16) -> Rocket<Build> {
