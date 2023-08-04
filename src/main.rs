@@ -63,5 +63,5 @@ fn lezgong(routes: Vec<Route>, port: u16) -> Rocket<Build> {
 
 #[launch]
 fn launch() -> _ {
-    lezgong(routes![display_logs, add_log], 8080)
+    lezgong(routes![display_logs, add_log], 8081)
 }
