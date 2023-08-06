@@ -6,6 +6,6 @@ run:
 image-build:
 	docker build -t logchest .
 
-build:
+install:
 	rm -rf "$(PWD)/target/debug/logchest"
 	docker run --rm --user "$(id -u)":"$(id -g)" -v "$(PWD)":/usr/src/logchest -w /usr/src/logchest rust:latest cargo install --path .
