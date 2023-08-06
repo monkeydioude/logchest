@@ -7,14 +7,14 @@ pub mod log_op;
 use std::{net::Ipv4Addr, time::{UNIX_EPOCH, SystemTime}};
 use file_op::read_lines;
 use log_op::Log;
-use rocket::{serde::json::{Json, to_string}, Build, Config, Rocket, Route};
+use rocket::{serde::json::{Json, to_string, from_str}, Build, Config, Rocket, Route};
 
 const LOG_FILE_PATH: &str = "./logs/logs";
 
 #[get("/logchest/logs")]
-fn display_logs() -> Json<Vec<String>> {
+fn display_logs() -> Json<Vec<Log>> {
     Json(
-        match read_lines(LOG_FILE_PATH, |line| line.1.to_string()) {
+        match read_lines::<Log>(LOG_FILE_PATH, |line| from_str(line.1).unwrap()) {
             Ok(res) => res,
             Err(_) => vec!(),
         }
