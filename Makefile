@@ -6,5 +6,5 @@ run:
 image-build:
 	docker build -t logchest .
 
-build:	
+build:
 	docker run --rm --user "$(id -u)":"$(id -g)" -v "$(PWD)":/usr/src/logchest -w /usr/src/logchest rust:latest cargo build --release
