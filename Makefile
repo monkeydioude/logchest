@@ -4,7 +4,7 @@ run:
 	docker run -it -p 8081:8081 --rm --name logchest drannoc/logchest
 
 image-build:
-	docker build -t drannoc/logchest .
+	docker build --network="host" -t drannoc/logchest .
 
 docker-push: check-env
 	docker login -u $(DOCKER_USER) --password $(DOCKER_PASSWD)
