@@ -14,7 +14,7 @@ update-remote: image-build docker-push
 
 build:
 	rm -rf "$(PWD)/target/debug/logchest"
-	docker run --rm --user "$(id -u)":"$(id -g)" -v "$(PWD)":/usr/src/logchest -w /usr/src/logchest rust:latest cargo build
+	docker run --rm --user "$(id -u)":"$(id -g)" --network="host" -v "$(PWD)":/usr/src/logchest -w /usr/src/logchest rust:latest cargo build
 
 check-env:
 ifndef DOCKER_USER
