@@ -16,6 +16,9 @@ build:
 	rm -rf "$(PWD)/target/debug/logchest"
 	docker run --rm --user "$(id -u)":"$(id -g)" --network="host" -v "$(PWD)":/usr/src/logchest -w /usr/src/logchest rust:latest cargo build
 
+watch:
+	cargo watch -x run
+
 check-env:
 ifndef DOCKER_USER
 	$(error DOCKER_USER is undefined)

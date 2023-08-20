@@ -27,6 +27,11 @@ fn display_logs() -> Json<Vec<Log>> {
     
 }
 
+#[get("/logchest/healthcheck")]
+fn healthcheck() -> &'static str {
+    "Ok"
+}
+
 #[post("/logchest/log", format = "json", data = "<log>")]
 fn add_log(mut log: Json<Log>) -> String {
     let mut fm8kr = file_op::create_file(LOG_FILE_PATH);
@@ -60,5 +65,5 @@ fn lezgong(routes: Vec<Route>, port: u16) -> Rocket<Build> {
 
 #[launch]
 fn launch() -> _ {
-    lezgong(routes![display_logs, add_log], 8081)
+    lezgong(routes![display_logs, add_log, healthcheck], 8081)
 }
